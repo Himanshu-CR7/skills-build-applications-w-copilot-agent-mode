@@ -14,6 +14,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+
+import os
+from urllib.parse import urljoin
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
@@ -22,21 +25,23 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-router = routers.DefaultRouter()
-router.register(r'users', UserViewSet)
-router.register(r'teams', TeamViewSet)
-router.register(r'activities', ActivityViewSet)
-router.register(r'leaderboard', LeaderboardViewSet)
-router.register(r'workouts', WorkoutViewSet)
-
 @api_view(['GET'])
 def api_root(request, format=None):
+    CODESPACE_NAME = os.environ.get('CODESPACE_NAME')
+    # Prefer Codespace URL if available, else use request.get_host()
+    if CODESPACE_NAME:
+        base_url = f"https://{CODESPACE_NAME}-8000.app.github.dev/"
+    else:
+        # Use request scheme and host for local/dev
+        scheme = 'https' if request.is_secure() else 'http'
+        base_url = f"{scheme}://{request.get_host()}/"
+    api_prefix = urljoin(base_url, 'api/')
     return Response({
-        'users': reverse('user-list', request=request, format=format),
-        'teams': reverse('team-list', request=request, format=format),
-        'activities': reverse('activity-list', request=request, format=format),
-        'leaderboard': reverse('leaderboard-list', request=request, format=format),
-        'workouts': reverse('workout-list', request=request, format=format),
+        'users': urljoin(api_prefix, 'users/'),
+        'teams': urljoin(api_prefix, 'teams/'),
+        'activities': urljoin(api_prefix, 'activities/'),
+        'leaderboard': urljoin(api_prefix, 'leaderboard/'),
+        'workouts': urljoin(api_prefix, 'workouts/'),
     })
 
 urlpatterns = [
