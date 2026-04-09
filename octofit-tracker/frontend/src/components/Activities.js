@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 
 const Activities = () => {
   const [activities, setActivities] = useState([]);
-  // Use https for Codespaces, http for local
-  const codespaceUrl = process.env.REACT_APP_CODESPACE_URL || 'http://localhost:8000';
-  const endpoint = `${codespaceUrl.replace(/\/$/, '')}/api/activities/`;
+  // Construct endpoint for Codespaces or local development
+  const isCodespace = window.location.hostname.includes('github.dev');
+  const endpoint = isCodespace 
+    ? `https://${process.env.REACT_APP_CODESPACE_NAME || 'codespace'}-8000.app.github.dev/api/activities/`
+    : 'http://localhost:8000/api/activities/';
 
   useEffect(() => {
     console.log('Fetching activities from:', endpoint);

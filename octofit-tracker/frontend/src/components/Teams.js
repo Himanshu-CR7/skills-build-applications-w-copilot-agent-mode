@@ -2,8 +2,11 @@ import React, { useEffect, useState } from 'react';
 
 const Teams = () => {
   const [teams, setTeams] = useState([]);
-  const codespaceUrl = process.env.REACT_APP_CODESPACE_URL || 'http://localhost:8000';
-  const endpoint = `${codespaceUrl.replace(/\/$/, '')}/api/teams/`;
+  // Construct endpoint for Codespaces or local development
+  const isCodespace = window.location.hostname.includes('github.dev');
+  const endpoint = isCodespace
+    ? `https://${process.env.REACT_APP_CODESPACE_NAME || 'codespace'}-8000.app.github.dev/api/teams/`
+    : 'http://localhost:8000/api/teams/';
 
   useEffect(() => {
     console.log('Fetching teams from:', endpoint);
